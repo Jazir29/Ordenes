@@ -1,0 +1,40 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Mis ordenes</title>
+    <link rel="stylesheet" href="styles.css" />
+  </head>
+  <body>
+    <header><h1>Mis ordenes</h1></header>
+    <main>
+      <section>
+        <button id="addOrderBtn">Crear orden</button>
+        <table>
+          <thead>
+            <tr>
+              <th>ID</th>
+              <th>N° Orden</th>
+              <th>Fecha</th>
+              <th>N° Productos</th>
+              <th>Total</th>
+              <th>Estado</th>
+              <th>Options</th>
+            </tr>
+          </thead>
+          <tbody id="ordersTableBody">
+          </tbody>
+        </table>
+      </section>
+    </main>
+    <div id="deleteModal" class="modal hidden">
+      <div class="modal-content">
+        <p>Are you sure you want to delete this order?</p>
+        <button id="confirmDelete">Si</button>
+        <button class="danger" id="cancelDelete">Cancelar</button>
+      </div>
+    </div>
+    <script src="orders.js"></script>
+  </body>
+</html>

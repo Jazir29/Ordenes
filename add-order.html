@@ -1,0 +1,71 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Crear/Editar Orden</title>
+    <link rel="stylesheet" href="styles.css" />
+  </head>
+  <body>
+    <header><h1 id="formTitle">Crear Orden</h1></header>
+    <main>
+      <form id="orderForm">
+        <label>N° Orden</label>
+        <input type="text" id="orderNumber" disabled />
+
+        <label>Fecha</label>
+        <input type="text" id="orderDate" disabled />
+
+        <label>N° Productos</label>
+        <input type="text" id="orderProducts" disabled />
+
+        <label>Total</label>
+        <input type="text" id="orderPrice" disabled />
+
+        <label>Estado</label>
+        <select id="orderStatus">
+          <option value="Pendiente">Pendiente</option>
+          <option value="Procesando">Procesando</option>
+          <option value="Completada">Completada</option>
+          <option value="Cancelada">Cancelada</option>
+        </select>
+
+        <button type="button" id="addProductBtn">Agregar producto</button>
+      </form>
+
+      <section>
+        <h2>Producto</h2>
+        <table>
+          <thead>
+            <tr>
+              <th>ID</th>
+              <th>Nombre</th>
+              <th>Precio unit.</th>
+              <th>Cantidad</th>
+              <th>Total</th>
+              <th>Options</th>
+            </tr>
+          </thead>
+          <tbody id="productsTableBody">
+          </tbody>
+        </table>
+      </section>
+      <button id="saveOrderBtn">Guardar Orden</button>
+      <button id="viewProductsBtn">Ver productos</button>
+
+    </main>
+    <div id="productModal" class="modal hidden">
+      <div class="modal-content">
+        <h3 id="productModalTitle">Agregar producto</h3>
+        <label for="productSelect">Producto</label>
+        <select id="productSelect">          
+        </select>
+        <label for="productQty">Cantidad</label>
+        <input type="number" id="productQty" min="1" value="1" />
+        <button id="confirmProductBtn">Confirmar</button>
+        <button class="danger" id="cancelProductBtn">Cancelar</button>
+      </div>
+    </div>
+    <script src="addOrder.js"></script>
+  </body>
+</html>

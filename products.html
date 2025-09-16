@@ -1,0 +1,52 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Manage Products</title>
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+  <header>
+    <h1>Productos</h1>
+  </header>
+
+  <main>
+    <button id="addProductBtn">Agregar Producto</button>
+
+    <table>
+      <thead>
+        <tr>
+          <th>ID</th>
+          <th>Nombre</th>
+          <th>Precio unit.</th>
+          <th>Options</th>
+        </tr>
+      </thead>
+      <tbody id="productsListTable">
+        <!-- Products will be injected by JS -->
+      </tbody>
+    </table>
+
+    <button class="danger" onclick="window.history.back()">Volver</button>
+  </main>
+
+  <!-- Modal for Add/Edit -->
+  <div id="productModal" class="modal hidden">
+    <div class="modal-content">
+      <h3 id="productModalTitle">Add Product</h3>
+
+      <label for="productName">Name</label>
+      <input type="text" id="productName">
+
+      <label for="productPrice">Unit Price</label>
+      <input type="number" id="productPrice" min="1">
+
+      <button id="confirmProductBtn">Confirm</button>
+      <button id="cancelProductBtn">Cancel</button>
+    </div>
+  </div>
+
+  <script src="products.js"></script>
+</body>
+</html>
