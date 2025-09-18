@@ -21,9 +21,7 @@ const productQty = document.getElementById("productQty");
 const confirmProductBtn = document.getElementById("confirmProductBtn");
 const cancelProductBtn = document.getElementById("cancelProductBtn");
 
-
-
-// Calcular siguiente número de orden disponible (rellena huecos)
+// Calcula siguiente número de orden disponible (rellena huecos)
 function getNextOrderNumber() {
   if (orders.length === 0) return 1;
 
@@ -40,9 +38,8 @@ function getNextOrderNumber() {
   return nextNumber;
 }
 
-// ---------------------- MANEJO DE PRODUCTOS ----------------------
+// ---------------------- MANEJO DE PRODUCTOS MODAL ----------------------
 
-// Abrir modal para agregar producto
 document.getElementById("addProductBtn").addEventListener("click", () => {
   productModalTitle.textContent = "Agregar Producto";
   productQty.value = 1;
@@ -50,7 +47,7 @@ document.getElementById("addProductBtn").addEventListener("click", () => {
   productModal.classList.remove("hidden");
 });
 
-// Cancelar modal
+
 cancelProductBtn.addEventListener("click", () => {
   productModal.classList.add("hidden");
 });
@@ -186,7 +183,6 @@ function init() {
       orderStatus.value = order.status || "Pendiente";
     }
   } else {
-    // Crear nueva orden
     formTitle.textContent = "Agregar Orden";
     orderNumber.value = getNextOrderNumber();
     orderStatus.value = "Pendiente"; // valor por defecto
@@ -200,3 +196,4 @@ viewProductsBtn.addEventListener("click", () => {
 });
 
 init();
+
