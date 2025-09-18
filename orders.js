@@ -19,8 +19,8 @@ function renderOrders() {
       <td>S/ ${order.finalPrice}</td>
       <td>${order.status || "Pendiente"}</td>
       <td>
-        <button onclick="editOrder(${order.id})">✏️ Edit</button>
-        <button class="danger" onclick="openDeleteModal(${order.id})">🗑️ Delete</button>
+        <button onclick="editOrder(${order.id})">Editar</button>
+        <button class="danger" onclick="openDeleteModal(${order.id})">Eliminar</button>
       </td>
     `;
     ordersTableBody.appendChild(row);
@@ -50,5 +50,6 @@ cancelDelete.addEventListener("click", () => {
 addOrderBtn.addEventListener("click", () => {
   window.location.href = "add-order.html";
 });
+
 
 renderOrders();

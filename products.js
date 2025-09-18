@@ -28,8 +28,8 @@ function renderProducts() {
       <td>${p.name}</td>
       <td>S/ ${p.price}</td>
       <td>
-        <button onclick="editProduct('${p.id}')">✏️ Edit</button>
-        <button class="danger" onclick="deleteProduct('${p.id}')">🗑️ Delete</button>
+        <button onclick="editProduct('${p.id}')">Editar</button>
+        <button class="danger" onclick="deleteProduct('${p.id}')">Eliminar</button>
       </td>
     `;
     productsListTable.appendChild(row);
@@ -39,7 +39,7 @@ function renderProducts() {
 // Abrir modal para agregar
 addProductBtn.addEventListener("click", () => {
   editProductId = null;
-  productModalTitle.textContent = "Add Product";
+  productModalTitle.textContent = "Agregar Producto";
   productName.value = "";
   productPrice.value = "";
   productModal.classList.remove("hidden");
@@ -79,7 +79,7 @@ function editProduct(id) {
   if (!product) return;
 
   editProductId = id;
-  productModalTitle.textContent = "Edit Product";
+  productModalTitle.textContent = "Editar Producto";
   productName.value = product.name;
   productPrice.value = product.price;
   productModal.classList.remove("hidden");
@@ -99,3 +99,4 @@ function saveProducts() {
 
 // Inicializar
 renderProducts();
+
