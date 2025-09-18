@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Productos</title>
+  <title>Products</title>
   <link rel="stylesheet" href="styles.css">
 </head>
 <body>
@@ -34,7 +34,7 @@
   <!-- Modal for Add/Edit -->
   <div id="productModal" class="modal hidden">
     <div class="modal-content">
-      <h3 id="productModalTitle">Agegar producto</h3>
+      <h3 id="productModalTitle">Agregar producto</h3>
 
       <label for="productName">Nombre</label>
       <input type="text" id="productName">
@@ -43,11 +43,13 @@
       <input type="number" id="productPrice" min="1">
 
       <button id="confirmProductBtn">Confirmar</button>
-      <button id="cancelProductBtn">Cancelar</button>
+      <button class="danger" id="cancelProductBtn">Cancelar</button>
     </div>
   </div>
 
   <script src="products.js"></script>
 </body>
 </html>
+
+
 
