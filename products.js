@@ -39,7 +39,7 @@ function renderProducts() {
 // Abrir modal para agregar
 addProductBtn.addEventListener("click", () => {
   editProductId = null;
-  productModalTitle.textContent = "Agregar Producto";
+  productModalTitle.textContent = "Add Product";
   productName.value = "";
   productPrice.value = "";
   productModal.classList.remove("hidden");
@@ -79,7 +79,7 @@ function editProduct(id) {
   if (!product) return;
 
   editProductId = id;
-  productModalTitle.textContent = "Editar Producto";
+  productModalTitle.textContent = "Editar producto";
   productName.value = product.name;
   productPrice.value = product.price;
   productModal.classList.remove("hidden");
