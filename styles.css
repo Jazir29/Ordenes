@@ -110,8 +110,10 @@ select {
 }
 input:focus,
 select:focus {
-  border: 1px solid #4a90e2;
-} /* ========== Modal ========== */
+  border: 1px solid #4a90e2;  
+}
+
+/* ========== Modal ========== */
 .modal {
   position: fixed;
   top: 0;

@@ -1,102 +1,78 @@
-// Cargar productos desde localStorage o inicializar
-let availableProducts = JSON.parse(localStorage.getItem("availableProducts")) || [
-  { id: "1", name: "CPU", price: 1500 },
-  { id: "2", name: "Monitor", price: 750 },
-  { id: "3", name: "Teclado", price: 120 },
-  { id: "4", name: "Mouse", price: 75 },
-  { id: "5", name: "Audifonos", price: 70 }
-];
+document.addEventListener("DOMContentLoaded", () => {
+  const modal = document.getElementById("productModal");
+  const modalTitle = document.getElementById("productModalTitle");
+  const addBtn = document.getElementById("addProductBtn");
+  const cancelBtn = document.getElementById("cancelProductBtn");
+  const form = document.getElementById("productForm");
 
-const productsListTable = document.getElementById("productsListTable");
-const addProductBtn = document.getElementById("addProductBtn");
-const productModal = document.getElementById("productModal");
-const productModalTitle = document.getElementById("productModalTitle");
-const productName = document.getElementById("productName");
-const productPrice = document.getElementById("productPrice");
-const confirmProductBtn = document.getElementById("confirmProductBtn");
-const cancelProductBtn = document.getElementById("cancelProductBtn");
+  const productIdInput = document.getElementById("productId");
+  const productNameInput = document.getElementById("productName");
+  const productPriceInput = document.getElementById("productPrice");
 
-let editProductId = null;
-
-// Renderizar productos
-function renderProducts() {
-  productsListTable.innerHTML = "";
-  availableProducts.forEach(p => {
-    const row = document.createElement("tr");
-    row.innerHTML = `
-      <td>${p.id}</td>
-      <td>${p.name}</td>
-      <td>S/ ${p.price}</td>
-      <td>
-        <button onclick="editProduct('${p.id}')">Editar</button>
-        <button class="danger" onclick="deleteProduct('${p.id}')">Eliminar</button>
-      </td>
-    `;
-    productsListTable.appendChild(row);
+  // Abrir modal en modo agregar
+  addBtn.addEventListener("click", () => {
+    modalTitle.textContent = "Agregar producto";
+    form.reset();
+    productIdInput.value = "";
+    modal.classList.remove("hidden");
   });
-}
 
-// Abrir modal para agregar
-addProductBtn.addEventListener("click", () => {
-  editProductId = null;
-  productModalTitle.textContent = "Add Product";
-  productName.value = "";
-  productPrice.value = "";
-  productModal.classList.remove("hidden");
+  // Cerrar modal
+  cancelBtn.addEventListener("click", () => {
+    modal.classList.add("hidden");
+  });
+
+  // Editar producto
+  document.querySelectorAll(".editBtn").forEach(btn => {
+    btn.addEventListener("click", (e) => {
+      const row = e.target.closest("tr");
+      const id = row.dataset.id;
+      const nombre = row.children[1].textContent;
+      const precio = row.children[2].textContent;
+
+      modalTitle.textContent = "Editar producto";
+      productIdInput.value = id;
+      productNameInput.value = nombre;
+      productPriceInput.value = parseFloat(precio);
+      modal.classList.remove("hidden");
+    });
+  });
+
+  // Eliminar producto
+  document.querySelectorAll(".deleteBtn").forEach(btn => {
+    btn.addEventListener("click", (e) => {
+      const row = e.target.closest("tr");
+      const id = row.dataset.id;
+
+      if (confirm("¿Seguro que deseas eliminar este producto?")) {
+        fetch(`php/delete_product.php?id=${id}`, { method: "GET" })
+          .then(res => res.text())
+          .then(data => {
+            alert(data);
+            row.remove();
+          })
+          .catch(err => console.error(err));
+      }
+    });
+  });
+
+  // Guardar producto (insertar o editar)
+  form.addEventListener("submit", (e) => {
+    e.preventDefault();
+
+    const formData = new FormData(form);
+    const id = productIdInput.value;
+    let url = id ? "php/update_product.php" : "php/add_product.php";
+
+    fetch(url, {
+      method: "POST",
+      body: formData
+    })
+      .then(res => res.text())
+      .then(data => {
+        alert(data);
+        location.reload(); // refrescar la lista de productos
+      })
+      .catch(err => console.error(err));
+  });
 });
-
-// Confirmar guardar producto
-confirmProductBtn.addEventListener("click", () => {
-  const name = productName.value.trim();
-  const price = parseFloat(productPrice.value);
-
-  if (!name || price <= 0) return;
-
-  if (editProductId) {
-    // Editar producto existente
-    availableProducts = availableProducts.map(p =>
-      p.id === editProductId ? { ...p, name, price } : p
-    );
-  } else {
-    // Nuevo producto
-    const newId = (Math.max(0, ...availableProducts.map(p => parseInt(p.id))) + 1).toString();
-    availableProducts.push({ id: newId, name, price });
-  }
-
-  saveProducts();
-  renderProducts();
-  productModal.classList.add("hidden");
-});
-
-// Cancelar modal
-cancelProductBtn.addEventListener("click", () => {
-  productModal.classList.add("hidden");
-});
-
-// Editar producto
-function editProduct(id) {
-  const product = availableProducts.find(p => p.id === id);
-  if (!product) return;
-
-  editProductId = id;
-  productModalTitle.textContent = "Editar producto";
-  productName.value = product.name;
-  productPrice.value = product.price;
-  productModal.classList.remove("hidden");
-}
-
-// Eliminar producto
-function deleteProduct(id) {
-  availableProducts = availableProducts.filter(p => p.id !== id);
-  saveProducts();
-  renderProducts();
-}
-
-// Guardar en localStorage
-function saveProducts() {
-  localStorage.setItem("availableProducts", JSON.stringify(availableProducts));
-}
-
-// Inicializar
-renderProducts();
-

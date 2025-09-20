@@ -1,199 +1,152 @@
-let orders = JSON.parse(localStorage.getItem("orders")) || [];
-let products = [];
-let editOrderId = null;
+document.addEventListener("DOMContentLoaded", () => {
+  const addProductBtn = document.getElementById("addProductBtn");
+  const productModal = document.getElementById("productModal");
+  const confirmProductBtn = document.getElementById("confirmProductBtn");
+  const cancelProductBtn = document.getElementById("cancelProductBtn");
+  const productSelect = document.getElementById("productSelect");
+  const productQty = document.getElementById("productQty");
+  const productsTableBody = document.getElementById("productsTableBody");
+  const orderItemsInput = document.getElementById("orderItemsInput");
+  const orderProducts = document.getElementById("orderProducts");
+  const orderPrice = document.getElementById("orderPrice");
+  const saveOrderBtn = document.getElementById("saveOrderBtn");
+  const orderForm = document.getElementById("orderForm");
+  const productModalTitle = document.getElementById("productModalTitle");
 
-let availableProducts = JSON.parse(localStorage.getItem("availableProducts")) || [];
+  let itemsState = Array.isArray(window.initialItems) ? window.initialItems.slice() : [];
+  let editingIndex = null; // null = agregar, número = índice que se edita
 
-const urlParams = new URLSearchParams(window.location.search);
-editOrderId = urlParams.get("id");
+  // Abrir modal para agregar
+  addProductBtn.addEventListener("click", () => {
+    editingIndex = null;
+    productModalTitle.textContent = "Agregar producto";
+    productSelect.disabled = false; // se puede elegir producto
+    productSelect.selectedIndex = 0;
+    productQty.value = 1;
+    productModal.classList.remove("hidden");
+  });
 
-const formTitle = document.getElementById("formTitle");
-const orderNumber = document.getElementById("orderNumber");
-const orderDate = document.getElementById("orderDate");
-const orderProducts = document.getElementById("orderProducts");
-const orderPrice = document.getElementById("orderPrice");
-const productsTableBody = document.getElementById("productsTableBody");
-const saveOrderBtn = document.getElementById("saveOrderBtn");
-const productModal = document.getElementById("productModal");
-const productModalTitle = document.getElementById("productModalTitle");
-const productSelect = document.getElementById("productSelect");
-const productQty = document.getElementById("productQty");
-const confirmProductBtn = document.getElementById("confirmProductBtn");
-const cancelProductBtn = document.getElementById("cancelProductBtn");
+  // Cancelar modal
+  cancelProductBtn.addEventListener("click", () => {
+    productModal.classList.add("hidden");
+    productQty.value = 1;
+    editingIndex = null;
+  });
 
-// Calcula siguiente número de orden disponible (rellena huecos)
-function getNextOrderNumber() {
-  if (orders.length === 0) return 1;
+  // Confirmar producto (agregar o editar)
+  confirmProductBtn.addEventListener("click", () => {
+    const selectedOption = productSelect.options[productSelect.selectedIndex];
+    if (!selectedOption) {
+      alert("Selecciona un producto.");
+      return;
+    }
 
-  const usedNumbers = orders.map(o => parseInt(o.orderNumber)).sort((a, b) => a - b);
+    const productId = parseInt(selectedOption.value, 10);
+    const nombre = selectedOption.dataset.nombre || selectedOption.textContent.trim(); // solo nombre
+    const precio = parseFloat(selectedOption.dataset.precio);
+    const cantidad = Math.max(1, parseInt(productQty.value, 10) || 1);
+    const subtotal = +(precio * cantidad).toFixed(2);
 
-  let nextNumber = 1;
-  for (let num of usedNumbers) {
-    if (num === nextNumber) {
-      nextNumber++;
+    if (editingIndex !== null) {
+      // EDITAR
+      const item = itemsState[editingIndex];
+      item.cantidad = cantidad;
+      item.subtotal = +(item.precio * item.cantidad).toFixed(2);
     } else {
-      break;
+      // AGREGAR
+      const existing = itemsState.find(item => Number(item.id) === productId);
+      if (existing) {
+        existing.cantidad += cantidad;
+        existing.subtotal = +(existing.precio * existing.cantidad).toFixed(2);
+      } else {
+        itemsState.push({
+          id: productId,
+          nombre, // solo nombre
+          precio,
+          cantidad,
+          subtotal
+        });
+      }
     }
-  }
-  return nextNumber;
-}
 
-// ---------------------- MANEJO DE PRODUCTOS MODAL ----------------------
-
-document.getElementById("addProductBtn").addEventListener("click", () => {
-  productModalTitle.textContent = "Agregar Producto";
-  productQty.value = 1;
-  productSelect.selectedIndex = 0;
-  productModal.classList.remove("hidden");
-});
-
-
-cancelProductBtn.addEventListener("click", () => {
-  productModal.classList.add("hidden");
-});
-
-// Cargar productos en el <select>
-function loadProductsIntoSelect() {
-  productSelect.innerHTML = "";
-
-  if (availableProducts.length === 0) {
-    const option = document.createElement("option");
-    option.textContent = "No hay productos disponibles";
-    option.disabled = true;
-    option.selected = true;
-    productSelect.appendChild(option);
-    return;
-  }
-
-  availableProducts.forEach(p => {
-    const option = document.createElement("option");
-    option.value = p.id;
-    option.textContent = `${p.name} - S/ ${p.price}`;
-    productSelect.appendChild(option);
+    productQty.value = 1;
+    productModal.classList.add("hidden");
+    editingIndex = null;
+    renderProducts();
   });
-}
 
-// Confirmar producto agregado/editado
-confirmProductBtn.addEventListener("click", () => {
-  const productId = productSelect.value;
-  const selectedProduct = availableProducts.find(p => p.id === productId);
-  const qty = parseInt(productQty.value);
+  // Renderizar tabla
+  function renderProducts() {
+    productsTableBody.innerHTML = "";
+    let totalSum = 0;
+    let totalCantidad = 0;
 
-  if (!selectedProduct || qty < 1) return;
+    itemsState.forEach((item, idx) => {
+      totalSum += Number(item.subtotal);
+      totalCantidad += Number(item.cantidad);
 
-  const existing = products.find(p => p.id === productId);
-  if (existing) {
-    existing.qty = qty;
-    existing.total = qty * selectedProduct.price;
-  } else {
-    products.push({
-      id: selectedProduct.id,
-      name: selectedProduct.name,
-      unitPrice: selectedProduct.price,
-      qty: qty,
-      total: qty * selectedProduct.price
+      const tr = document.createElement("tr");
+      tr.innerHTML = `
+        <td>${escapeHtml(String(item.id))}</td>
+        <td>${escapeHtml(item.nombre)}</td>
+        <td>S/ ${Number(item.precio).toFixed(2)}</td>
+        <td>${item.cantidad}</td>
+        <td>S/ ${Number(item.subtotal).toFixed(2)}</td>
+        <td>
+          <button class="editBtn" data-idx="${idx}">Editar</button>
+          <button class="danger removeBtn" data-idx="${idx}">Eliminar</button>
+        </td>
+      `;
+      productsTableBody.appendChild(tr);
     });
+
+    // enlazar eliminar
+    productsTableBody.querySelectorAll('.removeBtn').forEach(btn => {
+      btn.addEventListener('click', (e) => {
+        const i = parseInt(e.currentTarget.dataset.idx, 10);
+        itemsState.splice(i, 1);
+        renderProducts();
+      });
+    });
+
+    // enlazar editar
+    productsTableBody.querySelectorAll('.editBtn').forEach(btn => {
+      btn.addEventListener('click', (e) => {
+        editingIndex = parseInt(e.currentTarget.dataset.idx, 10);
+        const item = itemsState[editingIndex];
+        productModalTitle.textContent = "Editar producto";
+        productSelect.value = item.id;
+        productSelect.disabled = true; // no dejar cambiar producto
+        productQty.value = item.cantidad;
+        productModal.classList.remove("hidden");
+      });
+    });
+
+    orderProducts.value = totalCantidad;
+    orderPrice.value = 'S/ ' + Number(totalSum).toFixed(2);
   }
 
-  updateProductsTable();
-  productModal.classList.add("hidden");
-});
-
-// Actualizar tabla de productos
-function updateProductsTable() {
-  productsTableBody.innerHTML = "";
-  products.forEach(p => {
-    const row = document.createElement("tr");
-    row.innerHTML = `
-      <td>${p.id}</td>
-      <td>${p.name}</td>
-      <td>S/ ${p.unitPrice}</td>
-      <td>${p.qty}</td>
-      <td>S/ ${p.total}</td>
-      <td>
-        <button onclick="editProduct('${p.id}')">Editar</button>
-        <button class="danger" onclick="removeProduct('${p.id}')">Eliminar</button>
-      </td>
-    `;
-    productsTableBody.appendChild(row);
+  // Guardar orden
+  saveOrderBtn.addEventListener("click", () => {
+    if (itemsState.length === 0) {
+      if (!confirm("La orden no tiene productos. ¿Deseas guardar igual?")) return;
+    }
+    orderItemsInput.value = JSON.stringify(itemsState);
+    orderForm.submit();
   });
 
-  orderProducts.value = products.length;
-  orderPrice.value = "S/ " + products.reduce((acc, p) => acc + p.total, 0);
-}
-
-// Editar producto
-function editProduct(id) {
-  const p = products.find(prod => prod.id === id);
-  if (!p) return;
-
-  productSelect.value = p.id;
-  productQty.value = p.qty;
-  productModalTitle.textContent = "Editar Producto";
-  productModal.classList.remove("hidden");
-}
-
-// Eliminar producto
-function removeProduct(id) {
-  products = products.filter(p => p.id !== id);
-  updateProductsTable();
-}
-
-// ---------------------- MANEJO DE ÓRDENES ----------------------
-
-const orderStatus = document.getElementById("orderStatus");
-
-// Guardar orden
-saveOrderBtn.addEventListener("click", () => {
-  const newOrder = {
-    id: editOrderId ? parseInt(editOrderId) : Date.now(),
-    orderNumber: parseInt(orderNumber.value),
-    date: orderDate.value,
-    products: products,
-    finalPrice: products.reduce((acc, p) => acc + p.total, 0),
-    status: orderStatus.value
-  };
-
-  if (editOrderId) {
-    orders = orders.map(o => (o.id == editOrderId ? newOrder : o));
-  } else {
-    orders.push(newOrder);
+  // Escapar HTML
+  function escapeHtml(text) {
+    if (!text) return '';
+    return String(text).replace(/[&<>"']/g, m => ({
+      '&':'&amp;',
+      '<':'&lt;',
+      '>':'&gt;',
+      '"':'&quot;',
+      "'":'&#39;'
+    })[m]);
   }
 
-  localStorage.setItem("orders", JSON.stringify(orders));
-  window.location.href = "index.html";
+  // Inicializar tabla si venimos editando
+  renderProducts();
 });
-
-// Inicialización
-function init() {
-  orderDate.value = new Date().toLocaleDateString();
-  loadProductsIntoSelect();
-
-  // Editar orden existente
-  if (editOrderId) {
-    formTitle.textContent = "Editar Orden";
-    const order = orders.find(o => o.id == editOrderId);
-    if (order) {
-      orderNumber.value = order.orderNumber;
-      orderDate.value = order.date;
-      products = order.products;
-      updateProductsTable();
-      orderProducts.value = products.length;
-      orderPrice.value = "S/ " + order.finalPrice;
-      orderStatus.value = order.status || "Pendiente";
-    }
-  } else {
-    formTitle.textContent = "Agregar Orden";
-    orderNumber.value = getNextOrderNumber();
-    orderStatus.value = "Pendiente"; // valor por defecto
-  }
-}
-
-//Redirigir a productos
-const viewProductsBtn = document.getElementById("viewProductsBtn");
-viewProductsBtn.addEventListener("click", () => {
-  window.location.href = "products.html";
-});
-
-init();
-
